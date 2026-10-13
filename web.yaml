@@ -1,0 +1,67 @@
+---
+- name: Настройка WEB
+  hosts: nginx
+  become: yes
+  vars:
+    log_server_ip: "192.168.122.2"
+    rsyslog_port: 514
+
+  tasks:
+    - name: Установка nginx
+      apt:
+        name:
+          - nginx
+          - nginx-common
+        state: present
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Запуск и включение nginx
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Резервная копия оригинального nginx.conf
+      copy:
+        src: /etc/nginx/nginx.conf
+        dest: /etc/nginx/nginx.conf.orig
+        remote_src: yes
+        force: no
+
+    - name: Настройка error_log
+      lineinfile:
+        path: /etc/nginx/nginx.conf
+        regexp: '^\s*error_log\s+'
+        line: "error_log  /var/log/nginx/error.log;\nerror_log  syslog:server={{ log_server_ip }}:{{ rsyslog_port }},tag=nginx_error;"
+        state: present
+        backup: yes
+
+    - name: Настройка access_log
+      lineinfile:
+        path: /etc/nginx/nginx.conf
+        regexp: '^\s*access_log\s+'
+        line: "access_log syslog:server={{ log_server_ip }}:{{ rsyslog_port }},tag=nginx_acces,severity=info combined;"
+        state: present
+        backup: yes
+
+    - name: Проверка конфигурации nginx
+      command: nginx -t
+      register: nginx_test
+      changed_when: false
+      failed_when: nginx_test.rc != 0
+
+    - name: Результат проверки
+      debug:
+        msg: "{{ nginx_test.stderr_lines }}"
+    
+    - name: Включение nginx
+      systemd:
+        name: nginx
+        enabled: yes
+
+    - name: Перезапуск nginx
+      systemd:
+        name: nginx
+        state: restarted
+        daemon_reload: yes

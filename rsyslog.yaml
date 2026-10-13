@@ -1,0 +1,64 @@
+---
+- name: Настройка Rsyslog
+  hosts: rsyslog
+  become: yes
+  vars:
+    rsyslog_port: 514
+    rsyslog_protocol: tcp
+    rsyslog_log_dir: /var/log/rsyslog
+#   web_server_ip: "192.168.50.10"
+
+  tasks:
+    - name: Создание директории для удалённых логов
+      file:
+        path: "{{ rsyslog_log_dir }}"
+        state: directory
+        owner: syslog
+        group: adm
+        mode: '0755'
+
+    - name: Настройка Rsyslog
+      copy:
+        dest: /etc/rsyslog.d/10-remote.conf
+        content: |
+          # Модули для приёма удалённых логов
+          module(load="imtcp")
+          module(load="imudp")
+
+          # Слушаем на всех интерфейсах
+          input(type="imtcp" port="{{ rsyslog_port }}")
+          input(type="imudp" port="{{ rsyslog_port }}")
+
+          # Шаблон для сохранения логов по хостам и программам
+          $template RemoteLogs, "{{ rsyslog_log_dir }}/%HOSTNAME%/%PROGRAMNAME%.log"
+          *.* ?RemoteLogs
+          & ~
+        mode: '0644'
+      notify: restart_rsyslog
+
+# расскоментировать при активном ufw.
+#    - name: Открытие порта 514 в firewall 
+#      ufw:
+#        rule: allow
+#        port: "{{ rsyslog_port }}"
+#        proto: "{{ item }}"
+#        from_ip: "{{ web_server_ip }}"
+#      loop:
+#        - tcp
+#        - udp
+#      ignore_errors: yes
+
+    - name: Проверка портов rsyslog
+      shell: ss -tnplu | grep ":{{ rsyslog_port }}" || echo "not listening"
+      register: rsyslog_ports
+      changed_when: false
+
+    - name: Вывод информации о портах
+      debug:
+        msg: "{{ rsyslog_ports.stdout }}"
+
+  handlers:
+    - name: restart_rsyslog
+      service:
+        name: rsyslog
+        state: restarted

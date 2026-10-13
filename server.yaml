@@ -1,0 +1,31 @@
+---
+- name: Клиент rsyslog all
+  hosts: server
+  become: yes
+  vars:
+    log_server_ip: "192.168.122.2"
+    rsyslog_port: 514
+
+  tasks:
+
+    - name: Конфиг отправки всех логов на удалённый сервер
+      copy:
+        dest: /etc/rsyslog.d/50-remote.conf
+        content: |
+          # ============================================
+          # ВСЕ логи → удалённый сервер
+          # ============================================
+
+          # Отправка всех логов по TCP на удалённый сервер
+          *.*  @@{{ log_server_ip }}:{{ rsyslog_port }}
+
+          # Останавливаем дальнейшую обработку (не пишем локально)
+          & stop
+        mode: '0644'
+      notify: restart_rsyslog
+
+  handlers:
+    - name: restart_rsyslog
+      systemd:
+        name: rsyslog
+        state: restarted

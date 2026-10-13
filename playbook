@@ -1,0 +1,6 @@
+---
+- name: Настройка центрального лог-сервера
+  import_playbook: rsyslog.yaml
+
+- name: Настройка web-сервера
+  import_playbook: web.yaml
