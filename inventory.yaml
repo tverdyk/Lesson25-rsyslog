@@ -2,13 +2,13 @@
 all:
   hosts:
     nginx:
-      ansible_host: 192.168.122.8
-      ansible_user: user
-      ansible_password: qqqwww
+      ansible_host: IP-ADDR
+      ansible_user: USER
+      ansible_password: PASSWD
 
     rsyslog:
-      ansible_host: 192.168.122.2
-      ansible_user: user
-      ansible_password: qqqwww
+      ansible_host: IP-ADDR
+      ansible_user: USER
+      ansible_password: PASSWD
   vars:
-    ansible_become_password: qqqwww
+    ansible_become_password: PASSWD_sudo
