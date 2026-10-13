@@ -25,3 +25,17 @@ elk.
 
 3 После выполнения плейбука, у вас 3 настроенных сервера-стенда. 
 
+Описание стенда. 
+ На серевере приемнике логов, в каталоге /var/log/rsyslog/ после старта добавятся каталоги с именами серверров server и web
+ <img width="998" height="434" alt="image" src="https://github.com/user-attachments/assets/ba4013be-d43e-4297-9281-f3940dd7c85a" />
+
+ПРверим логи web acces_log
+<img width="1811" height="890" alt="image" src="https://github.com/user-attachments/assets/d570789d-7699-4e56-bdc2-4bbd5507ea9a" />
+
+error_log, страница была перенесена предварительно для получения ошибки. 
+<img width="1811" height="890" alt="image" src="https://github.com/user-attachments/assets/bf90390d-93b9-4c4e-b88b-b85657fcfeaf" />
+
+логи server
+перезагрузил rsyslog и на сервере логов появилось сообщение.
+<img width="1811" height="916" alt="image" src="https://github.com/user-attachments/assets/ecd2907b-3371-4fb3-82d5-c4823f159d4e" />
+
