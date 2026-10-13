@@ -4,3 +4,6 @@
 
 - name: Настройка web-сервера
   import_playbook: web.yaml
+
+- name: Настройка server
+  import_playbook: server.yaml
