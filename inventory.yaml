@@ -10,5 +10,11 @@ all:
       ansible_host: IP-ADDR
       ansible_user: USER
       ansible_password: PASSWD
+
+    server:
+      ansible_host: IP-ADDR
+      ansible_user: USER
+      ansible_password: PASSWD
+
   vars:
     ansible_become_password: PASSWD_sudo
